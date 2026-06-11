@@ -1,0 +1,122 @@
+name: Project Checks
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  checks:
+    name: Basic Repository Quality Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print workflow start message
+        run: |
+          echo "=================================================="
+          echo "Starting checks for instant-dev-environment-lab"
+          echo "=================================================="
+
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Show repository structure
+        run: |
+          echo "Repository files:"
+          find . -maxdepth 3 -type f | sort
+
+      - name: Install tools needed for checks
+        run: |
+          echo "Installing basic tools used by the health check..."
+          sudo apt-get update
+          sudo apt-get install -y shellcheck tree iputils-ping
+
+      - name: Check required root files
+        run: |
+          echo "Checking required root files..."
+
+          if [ -f "README.md" ]; then
+            echo "PASS: README.md exists."
+          else
+            echo "FAIL: README.md is missing."
+            exit 1
+          fi
+
+      - name: Check required documentation files
+        run: |
+          echo "Checking required documentation files..."
+
+          required_docs=(
+            "docs/setup-guide.md"
+            "docs/troubleshooting-guide.md"
+            "docs/commands-cheatsheet.md"
+            "docs/environment-notes.md"
+          )
+
+          for file in "${required_docs[@]}"; do
+            if [ -f "$file" ]; then
+              echo "PASS: $file exists."
+            else
+              echo "FAIL: $file is missing."
+              exit 1
+            fi
+          done
+
+          echo "PASS: All required documentation files exist."
+
+      - name: Check required script files
+        run: |
+          echo "Checking required script files..."
+
+          required_scripts=(
+            "scripts/setup.sh"
+            "scripts/health-check.sh"
+          )
+
+          for file in "${required_scripts[@]}"; do
+            if [ -f "$file" ]; then
+              echo "PASS: $file exists."
+            else
+              echo "FAIL: $file is missing."
+              exit 1
+            fi
+          done
+
+          echo "PASS: All required script files exist."
+
+      - name: Run shell script syntax checks
+        run: |
+          echo "Running Bash syntax checks..."
+
+          for script in scripts/*.sh; do
+            echo "Checking syntax for $script"
+            bash -n "$script"
+            echo "PASS: $script passed Bash syntax check."
+          done
+
+      - name: Run ShellCheck if available
+        run: |
+          echo "Running ShellCheck for additional shell script feedback..."
+
+          if command -v shellcheck >/dev/null 2>&1; then
+            shellcheck scripts/*.sh
+            echo "PASS: ShellCheck completed successfully."
+          else
+            echo "ShellCheck is not available. Skipping ShellCheck."
+          fi
+
+      - name: Run environment health check
+        run: |
+          echo "Running project health check..."
+          bash scripts/health-check.sh
+
+      - name: Print success message
+        run: |
+          echo "=================================================="
+          echo "PASS: All project checks completed successfully."
+          echo "=================================================="
