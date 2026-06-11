@@ -1,0 +1,65 @@
+SyntaxError: JSON.parse: expected property name or '}' at line 2 column 3 of the JSON data
+
+{
+  // Friendly name shown in VS Code and GitHub Codespaces
+  "name": "Instant Dev Environment Lab",
+
+  // Build the development container from the local Dockerfile
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+
+  // Default workspace location inside the container
+  "workspaceFolder": "/workspaces/instant-dev-environment-lab",
+
+  // Use the default non-root user included in Microsoft Dev Container base images
+  "remoteUser": "vscode",
+
+  // Run setup and health-check scripts after the container is created
+  // These scripts should exist in the repository under scripts/
+  "postCreateCommand": "bash scripts/setup.sh && bash scripts/health-check.sh",
+
+  // VS Code settings for a beginner-friendly Linux development workspace
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.formatOnSave": true,
+        "files.eol": "\n"
+      },
+      "extensions": [
+        // Docker support
+        "ms-azuretools.vscode-docker",
+
+        // GitHub and GitHub Actions support
+        "GitHub.vscode-pull-request-github",
+        "github.vscode-github-actions",
+
+        // Markdown documentation support
+        "yzhang.markdown-all-in-one",
+        "DavidAnson.vscode-markdownlint",
+
+        // YAML support
+        "redhat.vscode-yaml",
+
+        // Python support
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+
+        // JavaScript support
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+
+        // Shell scripting support
+        "timonwong.shellcheck"
+      ]
+    }
+  },
+
+  // Optional quality-of-life features for Codespaces and local Dev Containers
+  "features": {},
+
+  // Keep the container running after startup
+  "overrideCommand": false
+}
